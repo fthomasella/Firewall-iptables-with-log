@@ -6,7 +6,7 @@
 #  ftm.fernando@gmail.com #        
 ###########################
 clear
-#Coloca o firewall para iniciar com o sistema
+#Start with the System
 #update-rc.d rc.firewall defaults
 echo " "
 echo " "
@@ -84,9 +84,7 @@ echo " "
 echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects
 
 
-
-# Limpa todas as regras anteriores
-echo " Limpando regras anteriores..."
+echo " clear old rules"
 echo " "
 
 iptables -F
@@ -191,7 +189,7 @@ iptables -A OUTPUT -p icmp -j ACCEPT
 #iptables -A OUTPUT -p udp --dport 1024:65500 -j ACCEPT
 
 #Allow all output
-iptables -A OUTPUT 0j ACCEPT
+iptables -A OUTPUT -J ACCEPT
 
 ##########################
 #REGRAS FORWARD          #
@@ -217,13 +215,11 @@ iptables -A FORWARD -p tcp --syn -j DROP
 #iptables -A FORWARD -s 10.1.1.0/8 -j ACCEPT
 #iptables -A FORWARD -s 192.168.1.0/24 -j ACCEPT
 
-#Drop tudo o resto.
+#Drop ALL.
 iptables -A INPUT -j LOG --log-level info --log-prefix "Final rule, INPUT: "
 iptables -A INPUT -j DROP
 iptables -A FORWARD -j LOG --log-level info --log-prefix "Final rule, FORWARD: "
 iptables -A FORWARD -j DROP
-iptables -A OUTPUT -j LOG --log-level info --log-prefix "Final rule, OUTPUT: "
-iptables -A OUTPUT -j DROP
 
 sleep 1
 echo "  ******************************  "
