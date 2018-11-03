@@ -10,9 +10,8 @@ clear
 #update-rc.d rc.firewall defaults
 echo " "
 echo " "
-echo "  Carregando modulos...  "
+echo "  Loading Modules...  "
 echo " "
-sleep 1
 
 # load modules
 /sbin/modprobe iptable_nat
@@ -22,71 +21,58 @@ sleep 1
 /sbin/modprobe ipt_REJECT
 /sbin/modprobe ipt_MASQUERADE
 
-echo " Ativando roteamento pelo kernel...  "
-echo " "
-sleep 1
-
-# Disable kernel forward
+echo "Disable kernel forward"
 echo "0" >/proc/sys/net/ipv4/ip_forward
-
-# Ip spoofinng protect
+echo " "
 echo " Ip spoofing protect..."
 echo " "
-sleep 1
+
 echo "1" >/proc/sys/net/ipv4/conf/all/rp_filter
 
 #Drop source routes
 echo " Droping source routes... "
 echo " "
-sleep 1
+
 echo 0 > /proc/sys/net/ipv4/conf/all/accept_source_route
 
 #Enable logs.
 echo " Enable logs... "
 echo " "
-sleep 1
 echo 1 > /proc/sys/net/ipv4/conf/all/log_martians
 
 #Ignoring "broadcast pings"
 echo " Droping broadcast pings..."
 echo " "
-sleep 1
 echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts
 
 #Drop icmp packets
 echo " Droping all icmp packets..."
 echo " "
-sleep 1
 echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all
 
 #Drop responses by bugs.
 echo " Droping responses by bugs..."
 echo " "
-sleep 1
 echo 1 > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses
 
 #Set timeout.
 echo " Define limit for connections..."
 echo " "
-sleep 1
 echo 30 > /proc/sys/net/ipv4/tcp_fin_timeout
 
 #Connection keepalive.
 echo " Define keepalive..."
 echo " "
-sleep 1
 echo 1800 > /proc/sys/net/ipv4/tcp_keepalive_intvl
 
 #Enable syncookies
 echo " Enable syncookies..."
 echo " "
-sleep 1
 echo 1 > /proc/sys/net/ipv4/tcp_syncookies
 
 #Disable Explicit Congestion Notification
 echo " Disable explicit congestion notification..."
 echo " "
-sleep 1
 echo 0 > /proc/sys/net/ipv4/tcp_ecn
 
 #Reduce number of possible SYN Floods:
@@ -95,7 +81,6 @@ echo "1024" >/proc/sys/net/ipv4/tcp_max_syn_backlog
 #Don't send Redirect Messages
 echo " Disable redirect messages..."
 echo " "
-sleep 1
 echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects
 
 
@@ -103,7 +88,7 @@ echo 0 > /proc/sys/net/ipv4/conf/all/send_redirects
 # Limpa todas as regras anteriores
 echo " Limpando regras anteriores..."
 echo " "
-sleep 1
+
 iptables -F
 iptables -X
 iptables -Z
@@ -112,23 +97,21 @@ iptables -X -t nat
 iptables -F -t mangle
 iptables -X -t mangle
 
-echo " Aplicando politica padrao de DROP...  "
+echo " Apply Default Drop Policy...  "
 echo " "
-sleep 1
 
-# DROP todos os acessos
+# DROP all access
 iptables -P INPUT DROP
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
 
 
-# Libera o fluxo LOOPBACK
+# Allow LOOPBACK flow
 iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 iptables -A FORWARD -i lo -j ACCEPT
-echo " Liberando LOOPBACK...  "
+echo " Allowing LOOPBACK...  "
 echo " "
-sleep 1
 
 ##########SYN-FLOOD################
 iptables -N syn-flood
@@ -142,13 +125,12 @@ iptables -A FORWARD -p udp -m limit --limit 5/s -j ACCEPT
 ####################################
 
 ###########################
-# REGRAS INPUT            #
+#  INPUT  RULES          #
 ###########################
-echo " Aplicando regras INPUT...  "
+echo "APPLYING INPUT RULES...  "
 echo " "
-sleep 1
 
-# bloqueia portscan!
+#portscan drop!
 iptables -N SCANNER
 iptables -A SCANNER -j LOG --log-level info --log-prefix "Port scan DENY: "
 iptables -A SCANNER -j DROP
@@ -172,7 +154,7 @@ iptables -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -i eth0 -j SCANNER
 
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-#Protecoes contra DOS, DDOS.
+#Protect against DOS, DDOS.
 #Force SYN packets check
 iptables -A INPUT -p tcp ! --syn -m state --state NEW -j LOG --log-level info --log-prefix "Flood syn packets check: "
 iptables -A INPUT -p tcp ! --syn -m state --state NEW -j DROP
@@ -193,29 +175,29 @@ iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 ##########################
 # REGRAS OUTPUT          #
 ##########################
-echo " Aplicando regras OUTPUT...  "
+echo " APPLYING OUTPUT RULES...  "
 echo " "
-sleep 1
 
 iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-# Libera ICMP com limitacao na Interface Externa e acesso total interno
+# Allow ICMP output
 iptables -A OUTPUT -p icmp -j ACCEPT
 
-# Libera: SSH(22)     POP(110)    FTP(20:21)
-#         SMTP(25)    AUTH(113)   DNS(53)
 
-iptables -A OUTPUT -p tcp -m multiport --dport 20,21,22,25,53,80,110,113,443,587,3128,3389,1863,5900,5800  -j ACCEPT
-iptables -A OUTPUT -p udp -m multiport --dport 20,21,22,25,53,80,110,443,587,3128 -j ACCEPT
+
+#iptables -A OUTPUT -p tcp -m multiport --dport 20,21,22,25,53,80,110,113,443,587,3128,3389,1863,5900,5800  -j ACCEPT
+#iptables -A OUTPUT -p udp -m multiport --dport 20,21,22,25,53,80,110,443,587,3128 -j ACCEPT
 #iptables -A OUTPUT -p tcp --dport 1024:65500 -j ACCEPT
 #iptables -A OUTPUT -p udp --dport 1024:65500 -j ACCEPT
+
+#Allow all output
+iptables -A OUTPUT 0j ACCEPT
 
 ##########################
 #REGRAS FORWARD          #
 ##########################
-echo " Aplicando regras FORWARD... "
+echo " APPLYING FORWARD RULES... "
 echo " "
-sleep 1
 
 # Dropa pacotes TCP indesejaveis e gera os logs.
 iptables -A FORWARD -p tcp ! --syn -m state --state NEW -j LOG --log-level info --log-prefix "Packets without syn: "
@@ -243,15 +225,10 @@ iptables -A FORWARD -j DROP
 iptables -A OUTPUT -j LOG --log-level info --log-prefix "Final rule, OUTPUT: "
 iptables -A OUTPUT -j DROP
 
-
+sleep 1
 echo "  ******************************  "
-echo "  FIREWALL APLICADO COM SUCESSO!  "
+echo "  FIREWALL APPLIED  "
 echo "  ******************************  "
 echo " "
 echo " "
-sleep 2
 echo "       ________________________   "  
-echo "       Firewall  by  Fernando M.  "
-echo " "
-echo " "
-
