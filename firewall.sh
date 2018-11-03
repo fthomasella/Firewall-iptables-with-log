@@ -189,7 +189,7 @@ iptables -A OUTPUT -p icmp -j ACCEPT
 #iptables -A OUTPUT -p udp --dport 1024:65500 -j ACCEPT
 
 #Allow all output
-iptables -I OUTPUT -J ACCEPT
+iptables -I OUTPUT -j ACCEPT
 
 ##########################
 #REGRAS FORWARD          #
