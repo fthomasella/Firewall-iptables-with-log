@@ -8,4 +8,4 @@ I've did this file from a compile of tutorials a long time ago. If I used some p
 4- ./firewall.sh  
 5- feel free to change or adjust any rules.
 
-![Alt Text](https://github.com/fthomasella/Firewall-iptables-with-log/blob/master/iptables-L.PNG)
+![Alt Print Iptables Kali](https://github.com/fthomasella/Firewall-iptables-with-log/blob/master/iptables-L.PNG)
