@@ -219,7 +219,7 @@ iptables -A FORWARD -p tcp --syn -j DROP
 iptables -A INPUT -j LOG --log-level info --log-prefix "Final rule, INPUT: "
 iptables -A INPUT -j DROP
 iptables -A FORWARD -j LOG --log-level info --log-prefix "Final rule, FORWARD: "
-iptables -A FORWARD -j DROP
+iptables -I FORWARD -j DROP
 
 sleep 1
 echo "  ******************************  "
