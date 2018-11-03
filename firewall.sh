@@ -189,7 +189,7 @@ iptables -A OUTPUT -p icmp -j ACCEPT
 #iptables -A OUTPUT -p udp --dport 1024:65500 -j ACCEPT
 
 #Allow all output
-iptables -A OUTPUT -J ACCEPT
+iptables -I OUTPUT -J ACCEPT
 
 ##########################
 #REGRAS FORWARD          #
@@ -219,7 +219,7 @@ iptables -A FORWARD -p tcp --syn -j DROP
 iptables -A INPUT -j LOG --log-level info --log-prefix "Final rule, INPUT: "
 iptables -A INPUT -j DROP
 iptables -A FORWARD -j LOG --log-level info --log-prefix "Final rule, FORWARD: "
-iptables -I FORWARD -j DROP
+iptables -A FORWARD -j DROP
 
 sleep 1
 echo "  ******************************  "
