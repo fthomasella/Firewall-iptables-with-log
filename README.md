@@ -7,3 +7,5 @@ I've did this file from a compile of tutorials a long time ago. If I used some p
 3- chmod +x fireall.sh  
 4- ./firewall.sh  
 5- feel free to change or adjust any rules.
+
+[[https://github.com/fthomasella/Firewall-iptables-with-log/blob/master/iptables-L.PNG|alt=octocat]]
